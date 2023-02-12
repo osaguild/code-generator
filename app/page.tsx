@@ -1,6 +1,6 @@
 "use client";
 import { SimpleGrid } from "@chakra-ui/react";
-import AiComponent from "./ai";
+import { AiComponent } from "../components/AiComponent";
 
 export default function Home() {
   return (

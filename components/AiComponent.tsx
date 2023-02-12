@@ -2,7 +2,7 @@
 import { Textarea, Button, Container } from "@chakra-ui/react";
 import { useState } from "react";
 
-export default function AiComponent() {
+export const AiComponent = () => {
   const [question, setQuestion] = useState<string>("");
   const [answer, setAnswer] = useState<string>("");
 
@@ -40,4 +40,4 @@ export default function AiComponent() {
       <Textarea defaultValue={answer} placeholder="answer" size="sm" />
     </Container>
   );
-}
+};
