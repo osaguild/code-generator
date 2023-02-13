@@ -1,18 +1,37 @@
 "use client";
-import { Textarea, Button, Container } from "@chakra-ui/react";
+import { Textarea, Button, Container, RadioGroup, Stack, Radio, Text } from "@chakra-ui/react";
 import { useState } from "react";
+import { supportedCompletions } from "@/completion";
 
 export const AiComponent = () => {
-  const [question, setQuestion] = useState<string>("");
-  const [answer, setAnswer] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [result, setResult] = useState<string>("");
+  const [completionName, setCompletionName] = useState<string>("");
+  const [prompt, setPrompt] = useState<string>("");
 
-  const handleChange = (text: string) => {
-    setQuestion(text);
+  const handleMessageChange = (message: string) => {
+    const completion = supportedCompletions.find((e) => e.name === completionName)!;
+    if (message.length === 0) {
+      setPrompt(completion.prompt);
+    } else {
+      setPrompt(completion.prompt.replace("{message}", message));
+    }
+    setMessage(message);
+  };
+
+  const handleCompletionChange = (completionName: string) => {
+    setCompletionName(completionName);
+    const completion = supportedCompletions.find((e) => e.name === completionName)!;
+    if (message.length === 0) {
+      setPrompt(completion.prompt);
+    } else {
+      setPrompt(completion.prompt.replace("{message}", message));
+    }
   };
 
   const submit = async () => {
     try {
-      const requestBody: RequestBody = { question: question };
+      const requestBody: RequestBody = { completionName, message };
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: {
@@ -22,10 +41,10 @@ export const AiComponent = () => {
       });
 
       if (response.status === 200) {
-        const data: SuccessResponseBody = await response.json();
-        setAnswer(data.answer);
+        const data: ResponseBody = await response.json();
+        setResult(data.message);
       } else {
-        const data: ErrorResponseBody = await response.json();
+        const data: ResponseBody = await response.json();
         throw new Error(`Request failed with status ${response.status}, message: ${data.message}`);
       }
     } catch (e) {
@@ -35,9 +54,24 @@ export const AiComponent = () => {
 
   return (
     <Container>
-      <Textarea value={question} onChange={(e) => handleChange(e.target.value)} placeholder="question" size="sm" />
+      <RadioGroup onChange={handleCompletionChange} value={completionName}>
+        <Stack direction="row">
+          {supportedCompletions.map((e) => (
+            <Radio key={e.name} value={e.name}>
+              {e.name}
+            </Radio>
+          ))}
+        </Stack>
+      </RadioGroup>
+      <Textarea
+        value={message}
+        onChange={(e) => handleMessageChange(e.target.value)}
+        placeholder="question"
+        size="sm"
+      />
+      <Text>{prompt}</Text>
       <Button onClick={submit}>Submit</Button>
-      <Textarea defaultValue={answer} placeholder="answer" size="sm" />
+      <Textarea defaultValue={result} placeholder="answer" size="sm" />
     </Container>
   );
 };
