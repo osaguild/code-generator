@@ -31,7 +31,7 @@ export const AiComponent = () => {
 
   const submit = async () => {
     try {
-      const requestBody: RequestBody = { completionName, message };
+      const requestBody: AiRequestBody = { completionName, message };
       const response = await fetch("/api/ai", {
         method: "POST",
         headers: {
